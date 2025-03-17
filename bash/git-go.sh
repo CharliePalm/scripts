@@ -3,14 +3,18 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-extract_after_last_slash() {
-  local input_string="$1"
-  # Use parameter expansion to get the substring after the last '/'
-  echo "${input_string##*/}"
+extract_dash_word() {
+  local input="$1"
+
+  if [[ "$input" =~ ^([^_-]*-[^_-]*) ]]; then
+    echo "${BASH_REMATCH[1]}"
+  else
+    echo "${input%%[^a-zA-Z0-9]*}"  # Strip trailing special characters
+  fi
 }
 
 branch=$(git rev-parse --abbrev-ref HEAD)
-branch=$(extract_after_last_slash "$branch")
+branch=$(extract_dash_word "$branch")
 echo "commit message: $branch | $1"
 git add -A 
 git commit -m "$branch | $1" 
